@@ -27,6 +27,7 @@ export class UserServiceImpl implements UserService{
         })
         return user
     }
+    
     async getUserById(id: ObjectId): Promise<User | null> {
         const user = await AppDataSource.getRepository(User).findOneBy({
                 id: id
@@ -36,15 +37,37 @@ export class UserServiceImpl implements UserService{
         }
         return user;
     }
+
     async getAllUsers(): Promise<User[]> {
         const user = await AppDataSource.getRepository(User).find()
          return user;
     }
-    async updateUser(id: number, data: Partial<CreateUserDTO>): Promise<User> {
-        throw new Error("Method not implemented.");
+
+    async updateUser(id: ObjectId, data: Partial<CreateUserDTO>): Promise<User> {
+        const user = await AppDataSource.getRepository(User).findOneBy({
+            id: id
+        })
+        if(!user){
+            throw new CustomError(404, "User with id does not exist")
+        }
+        await AppDataSource.getRepository(User).update({
+            id,
+         },
+        data
+    )
+        return user
     }
-    async deleteUser(id: number): Promise<void> {
-        throw new Error("Method not implemented.");
+
+    async deleteUser(id: ObjectId): Promise<void> {
+        const user = await AppDataSource.getRepository(User).findOneBy({
+            id
+        })
+        if(!user){
+            throw new CustomError(404, "User not found")
+        }
+        await AppDataSource.getRepository(User).delete({
+            id
+        })
     }
 
 }
